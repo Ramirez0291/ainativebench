@@ -620,7 +620,7 @@ function trapHTML(t){
   return `<div class="eyebrow">反模式 · ${t.en}</div><h2>${t.t}</h2><p class="lede">${t.q}</p>
    ${ynHTML('trap',t.id,unk?undefined:S.traps[t.id])}
    <button class="unknown${unk?' on':''}" type="button" data-trap="${t.id}" data-v="?">不知道这是什么（先当它不存在）</button>
-   <div class="why"><div><b>为什么危险</b>${t.why}</div><div><b>怎么改</b>${t.fix}</div></div>`;
+   <div class="why"><div><b>为什么危险</b>${t.why}</div></div>`;
 }
 function stepHTML(st,v){
   const body=st.k==='item'?itemHTML(st.i)
