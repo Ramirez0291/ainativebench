@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI 原生双轴诊断</title>
+<meta name="description" content="16 种企业 AI 人格，你家是哪一种？量化组织的 AI 原生程度。">
+<link rel="canonical" href="https://rami0291.com/ainativebench/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI 原生双轴诊断">
+<meta property="og:title" content="AI 原生双轴诊断">
+<meta property="og:description" content="16 种企业 AI 人格，你家是哪一种？">
+<meta property="og:url" content="https://rami0291.com/ainativebench/">
+<meta property="og:image" content="https://rami0291.com/ainativebench/og/default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Noto+Serif+SC:wght@400;600;900&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+<style>
+/* Fireside study: parchment, walnut ink, brass accents, a faint hearth glow at the bottom of the page. */
+:root{
+  --bg:#F3EADB; --surface:#FBF6EC; --surface-2:#F0E5D2; --ink:#2E2219; --muted:#7A6550; --line:#DCCAAE;
+  --accent:#8B5A12; --accent-soft:#F1E1BF; --ember:#C2582B; --glow:rgba(214,110,50,.18);
+  --ok:#4F6B3A; --ok-soft:#E2E7D0; --warn:#946006; --warn-soft:#F4E4C1; --danger:#9E2B25; --danger-soft:#F3DAD3;
+  --q-tr:#E1E5CB; --q-br:#EAE0C8; --q-tl:#F2D8CB; --q-bl:#E8E1D5;
+  --f-display:"Fraunces","Noto Serif SC","Songti SC","STSong",serif;
+  --f-body:"Fraunces","Noto Serif SC","Songti SC","STSong",serif;
+  --f-mono:"Fraunces","Noto Serif SC",serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1A140F; --surface:#241B15; --surface-2:#2E231B; --ink:#EFE4D2; --muted:#A8957C; --line:#3E3026;
+  --accent:#D9A54A; --accent-soft:#3A2B16; --ember:#E0773D; --glow:rgba(224,119,61,.22);
+  --ok:#97B377; --ok-soft:#25301C; --warn:#E0B054; --warn-soft:#3A2C12; --danger:#E07B6A; --danger-soft:#3D1E1A;
+  --q-tr:#24301E; --q-br:#2E2619; --q-tl:#3A221C; --q-bl:#262019; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#1A140F; --surface:#241B15; --surface-2:#2E231B; --ink:#EFE4D2; --muted:#A8957C; --line:#3E3026;
+  --accent:#D9A54A; --accent-soft:#3A2B16; --ember:#E0773D; --glow:rgba(224,119,61,.22);
+  --ok:#97B377; --ok-soft:#25301C; --warn:#E0B054; --warn-soft:#3A2C12; --danger:#E07B6A; --danger-soft:#3D1E1A;
+  --q-tr:#24301E; --q-br:#2E2619; --q-tl:#3A221C; --q-bl:#262019; color-scheme:dark;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:48px;min-height:100vh}
+body::before{content:"";position:fixed;left:-20vw;right:-20vw;bottom:-25vh;height:70vh;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse at 50% 100%,var(--glow),transparent 68%);animation:hearth 7s ease-in-out infinite}
+@keyframes hearth{0%,100%{opacity:.85}23%{opacity:1}41%{opacity:.75}67%{opacity:.95}}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+[tabindex="-1"]:focus{outline:none}
+.wrap{max-width:760px;margin:0 auto}
+.wrap.wide{max-width:1040px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums lining-nums}
+.eyebrow{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-variant:small-caps}
+.muted{color:var(--muted)}
+
+/* top bar + progress */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;font-size:14px;color:var(--muted)}
+.topbar a{color:var(--muted);text-decoration:none}
+.topbar a:hover{color:var(--accent)}
+.progress{position:sticky;top:0;z-index:5;padding:10px 0 12px;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.progress[hidden]{display:none}
+.prog-meta{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted)}
+.prog-meta b{color:var(--ink);font-weight:600}
+.cells{display:flex;gap:3px;margin-top:8px;align-items:center}
+.cells .grp{display:flex;gap:3px;flex:var(--n)}
+.cells .gap{width:10px;flex:none}
+.cell{flex:1;height:6px;border-radius:3px;background:var(--line);transition:background .2s}
+.cell.done{background:var(--accent)}
+.cell.cur{background:var(--ember);box-shadow:0 0 8px var(--ember)}
+.grp.optional .cell{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.grp.optional .cell.done{background:var(--accent);opacity:.65;box-shadow:none}
+.grp.optional .cell.cur{background:var(--ember);box-shadow:0 0 8px var(--ember)}
+
+/* question screens */
+.q{padding:34px 0 12px}
+.q h2,.intro h1{font-family:var(--f-display);font-weight:600;letter-spacing:.005em}
+.q h2{font-size:clamp(26px,5.2vw,36px);line-height:1.28;margin:8px 0 12px}
+.lede{font-size:17px;line-height:1.9;margin:0 0 20px;color:var(--ink)}
+.aside{font-size:14.5px;color:var(--muted);font-style:italic;margin:16px 0 0}
+.evid{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin:0 0 14px;padding:10px 14px;border:1px dashed var(--line);border-radius:10px;font-size:15px;cursor:pointer}
+.evid input{accent-color:var(--accent);width:18px;height:18px;margin:0}
+.evid small{color:var(--muted);font-size:13px}
+.opts{display:grid;gap:10px}
+.opt{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;text-align:left;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;transition:border-color .15s,transform .15s,background .15s,box-shadow .15s}
+.opt:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 18px -12px var(--ember)}
+.opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.opt .lvl b{display:block;font-family:var(--f-display);font-size:18px;font-weight:600}
+.opt .lvl i{font-style:normal;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.opt .desc{font-size:15.5px;line-height:1.7}
+.opt .desc.between{color:var(--muted);font-style:italic}
+.opt kbd{font-family:var(--f-mono);font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 6px}
+@media (max-width:560px){.opt{grid-template-columns:62px minmax(0,1fr)}.opt kbd{display:none}}
+.yn2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.yn2 .opt{display:block;text-align:center;font-family:var(--f-display);font-size:22px;font-weight:600;padding:18px 12px}
+.unknown{display:block;width:100%;margin-top:10px;padding:10px 12px;background:none;border:1px dashed transparent;border-radius:12px;color:var(--muted);font-size:14.5px;cursor:pointer;text-align:center}
+.unknown:hover{border-color:var(--line);color:var(--ink)}
+.unknown.on{border-color:var(--line);background:var(--surface-2);color:var(--ink)}
+.why{display:grid;gap:10px;margin-top:18px;font-size:15px}
+.why div{background:var(--surface-2);border-radius:8px;padding:10px 12px;line-height:1.75}
+.why b{display:block;font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 20px;border-radius:999px;cursor:pointer;font-size:15px;line-height:1.4;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+.btn.primary:hover{box-shadow:0 6px 20px -8px var(--ember)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted);padding-left:4px;padding-right:4px}
+.btn.ghost:hover{color:var(--accent)}
+
+/* intro + gate */
+.intro{padding:12vh 0 24px;text-align:center}
+.intro .orn{font-size:28px;color:var(--ember);opacity:.8}
+.intro h1{font-size:clamp(34px,8vw,56px);line-height:1.15;margin:10px 0 8px;font-weight:800}
+.intro .sub{font-size:18px;color:var(--muted);margin:0 0 6px}
+.intro .hook{font-family:var(--f-display);font-size:clamp(20px,4.4vw,26px);margin:26px 0 10px}
+.intro .meta{font-size:14px;color:var(--muted);margin:0 0 28px}
+.intro .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.gate{padding:10vh 0 24px;text-align:center}
+.gate h2{font-family:var(--f-display);font-size:clamp(26px,5.6vw,38px);font-weight:600;margin:10px 0 14px}
+.gate p{max-width:34em;margin:0 auto 26px;color:var(--muted);text-wrap:pretty}
+.gate .row{display:grid;gap:12px;justify-items:center}
+
+/* result */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:30px 26px 26px;margin-top:22px}
+.mascot-ico{font-size:58px;line-height:1}
+.hero h1{font-family:var(--f-display);font-size:clamp(30px,6.4vw,48px);font-weight:800;line-height:1.2;margin:12px 0 10px}
+.hero .dream{display:block;font-size:.5em;font-weight:600;color:var(--warn);letter-spacing:.04em;margin-bottom:4px}
+.pull{font-family:var(--f-display);font-size:clamp(20px,4.2vw,27px);font-weight:600;line-height:1.5;border-left:3px solid var(--ember);padding:2px 0 2px 16px;margin:20px 0}
+.hero dl{display:grid;gap:10px;margin:0}
+.hero dt{font-size:12.5px;letter-spacing:.14em;color:var(--muted);font-variant:small-caps}
+.hero dd{margin:0 0 4px;font-size:16px}
+.comps{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);display:grid;gap:8px}
+.comp{background:var(--danger-soft);border-radius:10px;padding:10px 12px;font-size:14.5px;line-height:1.65}
+.comp b{color:var(--danger)}
+.unlock{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:14px 16px;border-radius:12px;background:var(--accent-soft);font-size:15px}
+.result-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:18px;align-items:start}
+@media (max-width:860px){.result-grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.score-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.big{font-family:var(--f-display);font-weight:800;font-size:56px;line-height:1;font-variant-numeric:lining-nums}
+.big small{font-size:16px;color:var(--muted);font-weight:400}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.kv div{background:var(--surface-2);border-radius:8px;padding:6px 8px}
+.kv span{display:block;font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+.kv b{font-family:var(--f-mono);font-size:19px;font-variant-numeric:lining-nums tabular-nums}
+.quad-name{margin:14px 0 6px;font-family:var(--f-display);font-size:20px;font-weight:600}
+svg.matrix{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.alerts{display:grid;gap:8px}
+.alert{font-size:14px;padding:9px 12px;border-radius:10px;line-height:1.6}
+.alert.danger{background:var(--danger-soft)} .alert.danger b{color:var(--danger)}
+.alert.warn{background:var(--warn-soft)} .alert.warn b{color:var(--warn)}
+.alert.ok{background:var(--ok-soft)} .alert.ok b{color:var(--ok)}
+.alert.info{background:var(--accent-soft)} .alert.info b{color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+details.full{margin-top:22px}
+details.full>summary{cursor:pointer;font-family:var(--f-display);font-size:20px;font-weight:600;padding:12px 0;border-top:1px solid var(--line);list-style-position:inside}
+.flag{display:inline-flex;gap:6px;align-items:center;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600;font-family:var(--f-body)}
+.flag.warn{background:var(--warn-soft);color:var(--warn)}
+.flag.danger{background:var(--danger-soft);color:var(--danger)}
+.flag.ok{background:var(--ok-soft);color:var(--ok)}
+.flag.info{background:var(--accent-soft);color:var(--accent)}
+.link-chip{font-size:12.5px;color:var(--muted)}
+.report{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.card h3{font-family:var(--f-display);font-size:20px;font-weight:600;margin-bottom:10px}
+.card p{margin:0 0 8px;max-width:72ch}
+.card ol,.card ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14px}
+@media (max-width:620px){.bar{grid-template-columns:minmax(0,1fr) 64px}.bar .track{grid-column:1 / -1;grid-row:2}}
+.track{height:10px;background:var(--surface-2);border-radius:5px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px}
+.track .cons{position:absolute;inset:0 auto 0 0;background:var(--ink);opacity:.18}
+.bar .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:lining-nums tabular-nums}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 18px;border-radius:999px;font-size:14px;z-index:10}
+textarea#copyFallback{width:100%;height:160px;margin-top:10px;font-size:12px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px}
+footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center}
+@media (prefers-reduced-motion:no-preference){.pt{transition:cx .35s ease,cy .35s ease}}
+
+/* share dialog */
+dialog#shareDlg{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:0;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+dialog#shareDlg::backdrop{background:rgba(20,14,10,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h3{font-family:var(--f-display);font-size:20px;font-weight:600}
+.dlg .frame{display:flex;justify-content:center}
+.dlg img{display:block;aspect-ratio:3/4;height:min(58vh,calc((min(520px,100vw - 32px) - 40px) * 4 / 3));width:auto;max-width:100%;border-radius:10px;background:#17110D}
+.dlg .small{font-size:13px;margin:0}
+.dlg .evid{margin:0}
+</style>
+</head>
+<body>
+<div class="wrap" id="shell">
+  <div class="topbar"><a href="/">← rami0291.com</a><span>AI 原生双轴诊断</span></div>
+  <div class="progress" id="progress" hidden></div>
+  <main id="app" aria-live="polite"></main>
+  <footer>本工具不构成审计结论。By Ramirez0291</footer>
+</div>
+<dialog id="shareDlg" aria-labelledby="shareTitle">
+  <div class="dlg">
+    <h3 id="shareTitle">分享海报</h3>
+    <div class="frame"><img id="posterImg" alt="分享海报预览"></div>
+    <div class="actions" style="margin-top:0">
+      <button class="btn primary" type="button" data-share="download">下载图片</button>
+      <button class="btn" type="button" data-share="native" hidden>分享…</button>
+      <button class="btn" type="button" data-share="link">复制链接</button>
+      <button class="btn ghost" type="button" data-share="close">关闭</button>
+    </div>
+    <p class="muted small">手机上也可以长按图片保存。链接只包含人格和坐标，不含你的答题明细。</p>
+  </div>
+</dialog>
+<script>
+const LV=[0,.25,.5,.75,1];
+const LVNAME=['空白','萌芽','试水','推进','原生'];
+
+const Y_ITEMS=[
+ {id:'y1',name:'准入政策与企业级基建',en:'Access Policy & Enterprise Infrastructure',w:15,
+  focus:'区分「草台班子」与「正规军」的第一道门槛：① 集中账号与 SSO　② 合同约定数据不用于训练　③ 管理员可控权限与功能开关　④ 审计日志　⑤ 数据保留期可控。满足 1–2 项约 50%，3–4 项约 75%。',
+  a:['一刀切封禁 AI，或放任员工用个人免费账号「裸奔」。','团队级方案或报销个人订阅：集中计费、数据不用于训练，但缺 SSO、审计日志等管理能力（①–⑤ 满足 1–2 项）。','企业级方案：①–⑤ 全部满足，全员覆盖，账号随入职离职由身份系统自动开通与回收。']},
+ {id:'y2',name:'企业知识库沉淀',en:'Enterprise Knowledge Base · stack-agnostic',w:20,
+  focus:'AI 的上限不取决于模型智商，而取决于喂给它的企业上下文质量。',
+  a:['经验全在老员工脑子里，或散落在个人聊天记录与本地文件。','有零散的部门级文档库，但长期不更新、信息互相冲突。','全公司统一的动态知识源（RAG、LLM Wiki、长上下文均可），有 owner 与版本，AI 可精准调用。']},
+ {id:'y3',name:'业务流加速方式',en:'Workflow Acceleration · beyond the chat box',w:20,
+  focus:'「看不见聊天框」的才是真正的 AI 原生，业务在后台被直接加速。',
+  a:['完全不用，或只停留在打开网页一问一答。','部分岗位用 Prompt 模板半自动处理文案、翻译、代码片段。','静默融入（Embedded AI）：AI 挂在业务触发器与后台流程中自动流转，人不再充当传话筒。']},
+ {id:'y4',name:'生产业务介入深度',en:'Depth in Core Production',w:15,
+  focus:'敢不敢让 AI 上主战场，检验技术自信与工程兜底能力。满分的前提是先有硬边界、再放权。门槛：Y5 护栏低于 50% 时，本项最高按 50% 计。',
+  a:['严禁触碰生产环节，只写周报、润色邮件。','介入非核心环节：简历初筛、营销草稿、辅助代码审查。','经影子模式验证后，在硬边界（金额上限、动作白名单、可回滚）内直接介入核心链路：自动合并代码、动态调价调库存、Agent 自主处理工单。']},
+ {id:'y5',name:'AI 合规与治理护栏',en:'Compliance & Governance Guardrails',w:15,
+  focus:'合规不是踩刹车，而是让业务敢踩油门。',
+  a:['没有任何制度，出事靠甩锅。','拥有《员工 AI 使用守则》','数据脱敏网关、输出审计日志、幻觉拦截、评估回归集，以及明确的人工兜底（HITL）责任矩阵。']},
+ {id:'y6',name:'效能度量与防「AI 税」',en:'Outcome Measurement & Rework Control',w:15,
+  focus:'剔除虚假繁荣，确保 Token 消耗真正转化为业务 ROI。',
+  a:['不统计，或只看账号激活率、登录数。','统计调用频次，但没核算业务产出。','监控端到端吞吐量、返工率（Rework Rate）与单件业务成本，防止「省 30% 生成时间，花 40% 时间擦屁股」。']},
+];
+const X_ITEMS=[
+ {id:'x1',name:'连接',en:'Connected',w:25,
+  focus:'AI 的感官与血液：ERP、CRM、供应链数据割裂且口径不一，AI 拿到的就是残缺甚至矛盾的上下文。',
+  a:['手工导 Excel 对账。','核心系统局部打通，T+1 同步。','全链路实时数据流与统一数据底座（SSOT），主数据唯一。']},
+ {id:'x2',name:'可编程',en:'Programmable',w:25,
+  focus:'AI 的手脚（Tool Use / MCP）：系统不可编程，Agent 就只能在对话框里打「嘴炮」。',
+  a:['封闭式黑盒老旧软件。','主要系统有 API，但文档残缺、调用繁琐。','业务高度 API 化，有鉴权分级、沙箱与幂等，Agent 可即插即用。']},
+ {id:'x3',name:'自主',en:'Autonomous',w:25,
+  focus:'AI 的外骨骼护栏：先用确定性代码锁死边界与回滚，才能把概率性的 LLM 放进流程中间。',
+  a:['全靠人肉审批与口头流转。','核心流程线上流转，具备基础自动化。','高度自动化闭环，具备异常监测与自愈能力。']},
+ {id:'x4',name:'赋权',en:'Empowered',w:25,
+  focus:'AI 的毛细血管：一线拉个报表都要找 IT 排期两周，再强的 AI 工具也落不了地。',
+  a:['严格 IT 集权，工具极难用。','提供标准 BI 与自助协作工具。','业务人员数据自助度高，能用低代码自行组装工具。']},
+];
+const ALL=[...Y_ITEMS,...X_ITEMS];
+const BYID=Object.fromEntries(ALL.map(i=>[i.id,i]));
+
+const TRAPS=[
+ {g:'AI 侧反模式',items:[
+  {id:'a1',link:'y5',t:'超长全局 Prompt 与暧昧负约束',en:'Prompt Bloat & Fuzzy Negatives',
+   q:'是否在企业后台塞了超长的全局合规 Prompt，或几十条边界含糊的「不要……」式负面约束？',
+   why:'长指令稀释注意力，条款之间互相打架，模型在「守规矩」和「有用」之间摇摆；负约束无法测试，出了事也定位不到哪条失效；每次调用还白白多付上下文成本。',
+   fix:'合规下沉到确定性层：DLP 网关、工具权限、输出校验。Prompt 只留角色与少量正向、可验证的规则，每条规则配一个评估用例。'},
+  {id:'a2',link:'y2',t:'「数字垃圾场」综合征',en:'Digital Landfill RAG',
+   q:'是否把十年量级的共享盘、邮件、旧版本文档一股脑灌进 RAG？',
+   why:'检索召回的是「最像的」，不是「最新最正确的」。新旧制度并存时，AI 会自信地引用已经作废的版本。',
+   fix:'先建少而准的「黄金知识集」；每份文档有 owner、版本号、有效期，过期自动下架；对同主题文档做冲突检测。'},
+  {id:'a3',link:'y3',t:'人肉胶水',en:'Human Copy-Paste Glue',
+   q:'是否做了一堆 AI 助手 Bot，让员工按模板把数据粘贴进去，再把回答粘回业务系统？',
+   why:'员工沦为「人肉 API」，效率增益被搬运吃掉，粘错一行就是事故。Bot 越多越低效。',
+   fix:'由业务事件触发（新订单、新工单、新邮件），通过 API / MCP 直接读写系统；人只出现在审批节点。'},
+  {id:'a4',link:'y4',t:'一上来就放权',en:'Day-One Autonomy without Hard Limits',
+   q:'是否在没有硬边界（金额上限、动作白名单、可回滚）的情况下，一上线就给 AI 客服或 Agent 开了退款、改价、删数据等权限？',
+   why:'一次提示词注入或幻觉就是真金白银的损失；动作不可回滚，责任无人承担。写在 Prompt 里的「不要超过 5000 日元」只是建议。',
+   fix:'先跑影子模式（只建议、不执行），用真实流量积累准确率；再按金额与风险分级放权（小额自动、大额人审）；硬边界写进代码和权限，不写在 Prompt 里；所有动作可审计、可撤销。'},
+  {id:'a5',link:'y6',t:'全链路无脑调旗舰',en:'Flagship-for-Everything',
+   q:'是否不分任务难易，所有调用都走最贵的旗舰模型？',
+   why:'分类、抽取、格式转换这类任务小模型就够，成本可能差一个数量级。预算烧完，整个项目被财务叫停。',
+   fix:'模型路由与分级；Prompt 缓存、批处理；以「每完成一件业务的成本」核算，而不是看月度账单总额。'},
+  {id:'a6',link:'y6',t:'表面高分假象',en:'Vanity Metrics',
+   q:'是否用「写代码速度 +60%」「日产 500 篇文案」这类产出量指标汇报 AI 成效？',
+   why:'产出量不等于交付价值：代码多了，评审与修缺陷的时间也多了；文案多了，转化率可能反而下降，还稀释了品牌。',
+   fix:'看端到端指标：需求交付周期、缺陷逃逸率、返工率、转化率；有条件就做对照组。'},
+  {id:'a7',link:'y1',t:'影子 AI',en:'Shadow AI',
+   q:'已买企业版，但员工仍在用个人账号或未审批的插件处理公司数据？',
+   why:'企业版的数据协议只覆盖企业账号；泄密发生在管理视野之外，事后也查不到。',
+   fix:'让企业版比个人版更好用（预置知识库、连接器）；网络层识别未审批的 AI 服务；给替代方案，不只是禁止。'},
+  {id:'a8',link:'y3',t:'PoC 炼狱',en:'Pilot Purgatory',
+   q:'过去一年做了多个 AI 试点，却没有一个进入正式生产、有人负责运维？',
+   why:'试点不计成本、不接真实系统、没有上线标准，于是永远「效果不错」，永远上不了线。',
+   fix:'立项即写清上线标准、业务 owner 和退出条件；一次只推一个高频流程走到底。'},
+  {id:'a9',link:'y5',t:'凭感觉验收',en:'Vibe-based Evaluation',
+   q:'改 Prompt 或换模型时，是否靠「试几条看着还行」就决定上线？',
+   why:'改一处坏三处没人发现；模型版本升级后的行为漂移，没有基线可比。',
+   fix:'建业务评估集（真实案例 + 标准答案）；每次变更跑回归；线上定期抽检。'},
+  {id:'a10',link:'y5',t:'Agent 泛滥',en:'Agent Sprawl',
+   q:'各部门各自搭 Bot / Agent，没有统一登记、owner 和下线机制？',
+   why:'同一个问题五个 Bot 给五个答案；离职员工建的 Agent 仍拿着系统令牌在跑。',
+   fix:'建 Agent 注册表：用途、owner、权限、数据范围、评估结果；定期复核与下线。'},
+  {id:'a11',link:'y5',t:'工具超权限',en:'Over-privileged Tools',
+   q:'Agent 连接的 MCP / API 用的是管理员令牌或某个人的全权账号？',
+   why:'Agent 读到的网页、邮件、附件里可能藏着注入指令；权限越大，被劫持后的破坏半径越大。',
+   fix:'每个工具独立服务账号、只读优先、按任务授权；敏感动作二次确认；记录全部工具调用。'},
+ ]},
+ {g:'数字化侧反模式',items:[
+  {id:'d1',link:'x2',t:'拿 RPA 屏幕点击冒充 API 化',en:'RPA Masquerading as APIs',
+   q:'系统自动化主要靠 RPA 模拟点击，却在汇报里算作「已 API 化」？',
+   why:'界面一改版就失效；没有事务、回滚和幂等。Agent 调用它，等于在流沙上盖房子。',
+   fix:'RPA 只作过渡，列出替换清单；优先给高频动作补真 API，或经数据库 / 中间件暴露服务。'},
+  {id:'d2',link:'x1',t:'T+7 手工数仓与僵尸数据湖',en:'Manual Warehouse & Zombie Lake',
+   q:'数仓靠人工每周导数；或数据湖建好后无人维护，指标口径没人说得清？',
+   why:'AI 看到的是一周前的世界；没有血缘和口径的数据湖，比没有更危险。',
+   fix:'先打通实时性要求最高的 3 条数据流；为核心指标建口径字典并指定 owner。'},
+  {id:'d3',link:'x1',t:'主数据各说各话',en:'Master Data Chaos',
+   q:'同一商品或客户，在 ERP、EC 平台、CRM 里编码或名称不一致，靠人记对应关系？',
+   why:'AI 判断不了「A123」和「A-123 黑色」是不是同一件商品，所有跨系统分析从这里开始出错。',
+   fix:'先定商品、客户两张主数据表和唯一编码，再谈 AI。'},
+  {id:'d4',link:'x3',t:'电子化的老路',en:'Paving the Cow Path',
+   q:'「流程线上化」只是把纸质审批搬进 OA，审批层级一个没少？',
+   why:'自动化没有发生，只是把等待搬到线上；规则仍在人脑里，没法交给机器执行。',
+   fix:'把审批规则写成明确条件（金额、品类、例外），可规则化的自动通过，人只审例外。'},
+  {id:'d5',link:'x2',t:'有 API，但 Agent 用不了',en:'Agent-Hostile APIs',
+   q:'API 存在，但缺细粒度鉴权、测试沙箱、幂等和清晰的错误信息？',
+   why:'Agent 会重试、会出错。接口不幂等，重试一次就重复下单；没有沙箱，只能拿生产环境练手。',
+   fix:'为开放的动作补齐：服务账号与范围授权、沙箱、幂等键、结构化错误、OpenAPI 文档（可直接转成 MCP）。'},
+  {id:'d6',link:'x4',t:'低代码野生园',en:'Shadow IT Sprawl',
+   q:'「赋权」的结果是上百个无人维护的表格应用和自动化流程，作者离职即失联？',
+   why:'赋权变成新的数据孤岛；关键业务挂在某个人的个人账号上。',
+   fix:'允许自由搭建，但进入生产前登记 owner、数据来源与备份；定期清理。'},
+  {id:'d7',link:'x4',t:'报表工厂',en:'Report Factory',
+   q:'BI 账号发了，但业务人员仍然找 IT 或数据组「帮我拉个数」？',
+   why:'工具到位不等于能力到位。一线不会自己向数据提问，也就不会向 AI 提好问题。',
+   fix:'建语义层与指标口径；按业务问题做培训。这一层也是「用自然语言问数据」的前提。'},
+ ]},
+];
+const ALLTRAPS=TRAPS.flatMap(g=>g.items);
+
+const Z_QS=[
+ {id:'z1',t:'独立预算',en:'Dedicated Budget',q:'AI 在年度预算里有独立科目，而不是从其他费用里临时挪用？',why:'“凭什么用我的预算办事？”'},
+ {id:'z2',t:'具名负责人',en:'Named Owner',q:'AI 落地有一位具名负责人，并且写进了他的 KPI？',why:'人人负责等于无人负责。'},
+ {id:'z3',t:'老板亲自用',en:'Leader Uses It',q:'老板本人过去一个月每周都在用 AI，而且能当场打开给大家看？',why:'对 AI 的判断来自新闻标题，热度也随新闻起落。'},
+ {id:'z4',t:'岗位改写',en:'Role Redesign',q:'过去一年里，至少有一个岗位的职责说明因为 AI 而改写过？',why:'岗位不变，AI 就只是附加工具。'},
+ {id:'z5',t:'容错机制',en:'Safe to Fail',q:'有过失败的试点，而且负责人没有因此被追责？',why:'从没失败过，通常说明没真正尝试；失败即追责，下一次就没人愿意牵头。'},
+ {id:'z6',t:'书面路线图',en:'Written Roadmap',q:'有书面的 AI 路线图，老板出差三个月项目照样推进？',why:'路线图只在老板脑子里，项目进度就等于老板的注意力。'},
+];
+const STABTXT={ok:'分数背后有预算、负责人和制度托底。老板换了想法，进展大体也能留下来。',
+ warn:'有一部分制度托底，但关键环节仍取决于个别人的热情。这个分数可能在半年内明显波动。',
+ danger:'这个分数主要靠个人热情撑着。老板注意力一转移，Y 轴可能整体回落。下面的缺口补上一项，比多买一个 AI 工具更值。'};
+
+const QUADS={
+ tr:{name:'AI 原生领航区',en:'AI-Native Frontier',tone:'ok',
+  desc:'数字化 API 就是 Agent 的原生接口，知识库随业务每日更新，AI 是业务运转的默认底座。',
+  rx:['把 Agent 当员工管理：注册表、权限、绩效（评估集）与下线机制。','把返工率和单件成本纳入月度经营指标，防止规模化后成本失控。','下一步瓶颈多在组织：岗位重设计与人才结构调整。']},
+ br:{name:'稳健蓄势区',en:'Digital Powerhouse',tone:'info',
+  desc:'数据干净、API 齐备、流程严谨，只是出于监管或审慎文化暂未铺开 AI。最让人安心的潜力股。',
+  rx:['先立 AI 合规体系（Y5），让业务敢动。','引入企业级安全方案（Y1），消除泄密顾虑。','把现成 API 封装成 Agent 工具（MCP），选一个高频流程跑通，再横向复制。']},
+ tl:{name:'幻觉裸奔区',en:'High-Risk Mirage',tone:'danger',
+  desc:'底层主数据没对齐、系统是封闭孤岛，却强推全员用 AI，甚至让 AI 介入生产。',
+  rx:['立刻降速：把 AI 从核心生产链路撤回辅助位。','预算转去补「系统打通」（X1）和「API 化改造」（X2）。','三大暴雷机制：垃圾进、光速垃圾出；员工沦为人肉 API；影子 AI 与责任黑洞。']},
+ bl:{name:'远古化石区',en:'Legacy Laggards',tone:'warn',
+  desc:'流程靠吼、数据靠猜，对 AI 视而不见。',
+  rx:['别急着买大模型。先做业务线上化、电子化。','把老员工脑子里的经验沉淀成文档（Y2 的原料）。','选一个痛点小流程做示范，建立组织对数字化的信心。']},
+};
+
+/* ---------- 16 型企业人格：12 基础型（按实际象限判定）+ 4 反模式变异型（只作并发症） ---------- */
+const PERSONAS={
+ // 左下 · 远古化石区
+ bl_default:{quad:'bl',name:'远古遗迹的守护者',sub:'等 AI 学会用传真机',verdict:'AI是什么，新型诈骗？',poster:'「不要叫醒他们。」',mascot:'🏺 琥珀里的传真机',disease:'他们可能是智械危机后唯一的幸存者。'},
+ sculptor:{quad:'bl',name:'电子文档的雕刻师',sub:'把纸搬进屏幕，把等待雕成艺术',verdict:'流程全部线上化了，一个章都没少。',poster:'「通知，今后本司流程一律改为在OA上提交。」',mascot:'📌 镶金边的赛博玉玺',disease:'OA 赛博包浆症：把线下跑断腿的审批原封不动搬到线上点断手，误把 PDF 流转当成数字化。'},
+ lamplighter:{quad:'bl',name:'末法时代的掌灯人',sub:'战略在老板的微信收藏夹里',verdict:'公司的 AI 战略，取决于老板昨天刷到了什么。',poster:'「本司 AI 路线图：在老板脑子里。」',mascot:'🧭 绑在微信红点上的风向标',disease:'短视频战略多动症：无独立预算、无具名负责人、无书面路线图，热度随老板转发的公众号文章起落。'},
+ // 左上 · 幻觉裸奔区
+ tl_default:{quad:'tl',name:'幻觉疾行的狂热者',sub:'跑得比地基快',verdict:'AI 一句话，全公司连夜改方向。',poster:'「这叫先发优势，你懂不懂啊？」',mascot:'🛹 踩喷气滑板的蒙眼独轮小丑',disease:'多巴胺驱动型重构癖：底层主数据都没对齐，却对大模型的幻觉奉若神明，跑得越快越危险。'},
+ skinny_dipper:{quad:'tl',name:'数据裸泳的冒险家',sub:'客户名单在免费版里裸泳',verdict:'把数据脱光了跑，还管这叫敏捷。',poster:'「要相信你的员工。」',mascot:'🐡 穿透明保鲜膜的赛博河豚',disease:'无护栏生产狂躁症：缺乏企业级账号或确定性合规护栏，却敢让 AI 带着核心数据直连生产链路。'},
+ meat_api:{quad:'tl',name:'人肉接口的搬运工',sub:'全公司最稳的接口是 Ctrl+C',verdict:'AI 挂在人肉传送带上，Bot 越多越慢。',poster:'「全流程自动化=由人类负责自动化。」',mascot:'🐜 举着 Ctrl+C 键帽的八臂工蚁',disease:'腱鞘炎式伪自动化：系统不可编程，靠员工在聊天框和业务系统之间充当人体剪贴板。'},
+ // 右下 · 稳健蓄势区
+ br_default:{quad:'br',name:'数字时代的先驱者',sub:'地基打好了，房子没盖',verdict:'全班唯一做完作业却没交的人。',poster:'「AI 战略已完成 99%：只差开始。」',mascot:'🏎️ 盖着天鹅绒车衣的满油超跑',disease:'完美主义起跑线瘫痪症：数据干净、API 齐备，但在过度审慎与观望中迟迟没有迈出第一步。'},
+ bard:{quad:'br',name:'免责声明的吟游诗人',sub:'用 AI 写了三千字禁用 AI 的通知',verdict:'护栏修得比路还长，车还停在车库。',poster:'「治理成熟度 90%，使用率 3%。」',mascot:'🛡️ 缠满十层气泡膜的竖琴骑士',disease:'防御性合规过敏症：把“不出事”当唯一 KPI，条文修得像万里长城，把真实业务全拦在了墙外。'},
+ gatekeeper:{quad:'br',name:'接口地主的守门人',sub:'API 金碧辉煌，门上写着「仅限 IT」',verdict:'API 修得比谁都好，业务连门都摸不到。',poster:'「API 覆盖率 100%，调用者 0 人。」',mascot:'🐕 叼着排期号牌的三头机械看门犬',disease:'IT 集权性毛细血管栓塞：接口底座极强，但一线业务缺乏自助赋权，拉个数还要找 IT 排期两周。'},
+ // 右上 · AI 原生领航区
+ tr_default:{quad:'tr',name:'硅基生命的代言人',sub:'组织架构图里有个方框写着「模型」',verdict:'人给 AI 代言，AI 给公司干活。',poster:'「本司员工：碳基 42%，硅基 58%。」',mascot:'🧬 执音叉的双螺旋硅晶指挥家',disease:'人机混编高原反应：技术与业务流已高度原生，下一步瓶颈在于重写传统岗位职责与组织架构。'},
+ stoker:{quad:'tr',name:'Token 焚化炉的司炉工',sub:'不看营收看 token',verdict:'篝火烧得很旺，月底只剩灰。',poster:'「token +400%，故事 +400%。」',mascot:'🔥 往纯金壁炉里铲美钞的蒸汽司炉工',disease:'算力虚荣与返工税失明症：沉迷单点生成量与调用频次，却未核算下游擦屁股的返工耗时与单件成本。'},
+ cyber_chief:{quad:'tr',name:'单点通电的赛博酋长',sub:'全公司只有一根电线',verdict:'AI 原生 95%，其中 90% 在一个人身上。',poster:'「本司 AI 基建：一根电线，一个人。」',mascot:'⚡ 头顶避雷针独自发电的赛博萨满',disease:'单点英雄依赖症 (Bus Factor = 1)：核心极客一走即宕机。'},
+ // 反模式变异型：不属于任何象限，只作为并发症出现
+ zookeeper:{name:'野生动物园的园长',sub:'离职员工的 Bot 还在半夜跑批',verdict:'人人都在搭智能体，没人知道全公司到底跑着多少个野生 Agent。',poster:'「同一个问题，本司五个 Bot 能给六个答案。」',mascot:'🐙 穿西装的九头章鱼',disease:'野生智能体增殖症 (Agent Sprawl)：各部门各自为战乱搭 Bot 与低代码表，无统一注册表、无权限收口、无下线机制。'},
+ puppeteer:{name:'屏幕按键的提线木偶',sub:'前端改个按钮，全司 AI 瘫痪',verdict:'号称全面 API 化，仔细一看全靠脚本在网页上模拟鼠标乱点。',poster:'「我们的 Agent，最怕浏览器弹窗。」',mascot:'🐦 绑着放大镜的发条啄木鸟',disease:'脆性 UI 寄生症：拿 RPA 屏幕模拟点击冒充后端 API 化，缺乏事务、回滚与幂等，网页一改版全线崩溃。'},
+ hamster_king:{name:'赛博拾荒的仓鼠王',sub:'十年陈年旧账，一秒精准胡说',verdict:'把十年没洗过的共享盘全灌进 RAG，让 AI 自信地引用三年前作废的制度。',poster:'「知识库容量 10TB，准确率全靠缘分。」',mascot:'🐹 坐在废纸山王座上的电子仓鼠',disease:'数字囤积癖与过期上下文中毒：只管往知识库里塞陈年文档，不做过期下架、版本号治理与口径冲突消解。'},
+ ferryman:{name:'PoC 炼狱的摆渡人',sub:'永远在试点，永远热泪盈眶',verdict:'立项时锣鼓喧天，验收时悄无声息，全公司躺着二十个没人运维的 Demo。',poster:'「本司已成功完成第 38 次 AI 破冰。」',mascot:'🎠 衔尾蛇发光旋转木马',disease:'慢性试点成瘾症：试点不计成本、不接真实生产系统、不设上线标准，永远卡在演示蜜月期。'},
+};
+for(const k in PERSONAS) PERSONAS[k].id=k;
+
+// 每个象限内按顺序判定，第一个命中的亚型胜出；都不命中则取该象限的 _default。
+// h.raw = 原始自评档位，h.lv = 护栏门槛修正后档位（仅 Y4 可能不同），h.trap = 反模式答「是」，h.z = 稳定度答案。
+const PERSONA_RULES={
+ bl:[
+  ['lamplighter',h=>h.z.z1===false&&h.z.z2===false&&h.z.z6===false],
+  ['sculptor',h=>h.trap('d4')||(h.lv('x3')>=2&&h.lv('x2')<=1)],
+ ],
+ tl:[
+  // 必须用 raw('y4')：Y5 不足时 lv('y4') 会被压到 2 档
+  ['skinny_dipper',h=>((h.lv('y1')<=1||h.lv('y5')<=1)&&h.raw('y4')>=3)||h.trap('a7')],
+  ['meat_api',h=>(h.lv('y3')>=3&&h.lv('x2')<=1)||h.trap('a3')],
+ ],
+ br:[
+  ['bard',h=>(h.lv('y5')>=3&&h.raw('y4')<=1)||h.trap('a1')],
+  ['gatekeeper',h=>(h.lv('x2')>=3&&h.lv('x4')<=1)||h.trap('d7')],
+ ],
+ tr:[
+  // 稳定度题没答完不判，避免「没答」被当成「否」
+  ['cyber_chief',h=>h.c.stab.ans===6&&h.c.stab.yes<=1],
+  ['stoker',h=>h.lv('y6')<=1||h.trap('a5')||h.trap('a6')],
+ ],
+};
+const MUTATOR_RULES=[
+ ['zookeeper',h=>h.trap('a10')&&(h.trap('d6')||h.trap('a11'))],
+ ['puppeteer',h=>h.trap('d1')&&h.raw('x2')>=2],
+ ['hamster_king',h=>(h.trap('a2')||h.trap('d2'))&&h.raw('y2')>=2],
+ ['ferryman',h=>h.trap('a8')&&h.c.Y>=30&&h.lv('y4')<=2],
+];
+
+// 证据默认视为「能拿出」，用户拿不出时自己取消勾选。
+const EMPTY=()=>({scores:{},evid:Object.fromEntries(ALL.map(i=>[i.id,true])),traps:{},tunk:{},z:{},view:{s:'intro'}});
+const clone=o=>JSON.parse(JSON.stringify(o));
+const KEY='ai-native-bench-v1';
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||!S.scores||!S.view) S=EMPTY();
+if(!S.tunk) S.tunk={};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+const r1=n=>Math.round(n*10)/10;
+function compute(){
+  const it={}; const notes=[];
+  for(const i of ALL){
+    let lv=S.scores[i.id]??0, capped=false;
+    if(i.id==='y4' && (S.scores.y5??0)<2 && lv>2){lv=2;capped=true}
+    const hits=ALLTRAPS.filter(t=>t.link===i.id && S.traps[t.id]===true);
+    const down=(S.evid[i.id]?0:1)+(hits.length?1:0);
+    const clv=Math.max(0,lv-down);
+    it[i.id]={raw:S.scores[i.id]??0,lv,clv,capped,hits,score:i.w*LV[lv],cscore:i.w*LV[clv]};
+  }
+  const sum=(arr,k)=>arr.reduce((a,i)=>a+it[i.id][k],0);
+  const Y=sum(Y_ITEMS,'score'),X=sum(X_ITEMS,'score'),Yc=sum(Y_ITEMS,'cscore'),Xc=sum(X_ITEMS,'cscore');
+  const total=(x,y)=>{const pen=Math.max(0,0.6*(y-x-20));return{pen,score:0.5*x+0.5*y-pen}};
+  const T=total(X,Y),Tc=total(Xc,Yc);
+  const quad=(X>=60?(Y>=60?'tr':'br'):(Y>=60?'tl':'bl'));
+  const gap=Y-X;
+  const L=k=>S.scores[k]??0;
+  const cons=[];
+  if(it.y4.capped) cons.push(['warn','护栏门槛生效','Y5 合规护栏不足 50%，「生产业务介入深度」按 50% 计。先补护栏，深度才算数。']);
+  if(L('y3')>=3&&L('x2')<=1) cons.push(['warn','自相矛盾：Y3 × X2','AI 号称静默嵌入业务流，但系统几乎不可编程。AI 的结果是怎么写回系统的？多半是人肉胶水。']);
+  if(L('y2')>=3&&L('x1')<=1) cons.push(['warn','自相矛盾：Y2 × X1','统一知识源打了高分，但系统没有打通。知识源的数据从哪来、谁来同步？']);
+  if(L('y4')>=3&&L('x3')<=1) cons.push(['warn','自相矛盾：Y4 × X3','AI 介入核心生产，但缺乏确定性的自动化与回滚护栏。']);
+  if(L('y4')>=3&&L('y1')<=1) cons.push(['danger','裸奔上产线','没有企业级基建，却让 AI 进入生产环节。']);
+  const zy=Z_QS.filter(q=>S.z[q.id]===true).length, za=Z_QS.filter(q=>S.z[q.id]!==undefined).length;
+  const stab=zy>=5?{k:'ok',n:'稳固',en:'Solid',r:12}:zy>=3?{k:'warn',n:'一般',en:'Wobbly',r:24}:{k:'danger',n:'易碎',en:'Fragile',r:38};
+  stab.yes=zy; stab.ans=za;
+  return{it,X,Y,Xc,Yc,T,Tc,quad,gap,cons,stab};
+}
+
+function resolvePersona(c){
+  const h={c,raw:id=>c.it[id].raw,lv:id=>c.it[id].lv,trap:id=>S.traps[id]===true,z:S.z};
+  const hit=PERSONA_RULES[c.quad].find(([,when])=>when(h));
+  const p=PERSONAS[hit?hit[0]:`${c.quad}_default`];
+  const complications=MUTATOR_RULES.filter(([,when])=>when(h)).map(([id])=>PERSONAS[id]);
+  // 眼高手低：自评明显高于证据复核，且至少 3 个 Y 项自评 ≥75% 却拿不出证据。
+  // 只看 yGap 的话，跳过证据勾选的人几乎全会中招。
+  const yGap=r1(c.Y-c.Yc);
+  const highNoEvid=Y_ITEMS.filter(i=>c.it[i.id].raw>=3&&!S.evid[i.id]).length;
+  const dreamer=yGap>=15&&highNoEvid>=3;
+  return{...p,dreamer,yGap,complications,fullTitle:dreamer?`眼高手低的梦想家 · ${p.name}`:p.name};
+}
+
+/* ---------- matrix ---------- */
+const PX=v=>44+v*3.4, PY=v=>356-v*3.4;
+function matrixSVG(c){
+  const pts=a=>a.map(([x,y])=>`${PX(x)},${PY(y)}`).join(' ');
+  const ticks=[0,20,40,60,80,100].map(v=>`<text x="${PX(v)}" y="374" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--f-mono)">${v}</text><text x="36" y="${PY(v)+3}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--f-mono)">${v}</text>`).join('');
+  const ref=[{x:95,y:92,n:'Google'}];
+  const q=c.quad;
+  const op=k=>k===q?1:.55;
+  return `
+  <defs><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--danger)" stroke-width="1.4" opacity=".35"/></pattern></defs>
+  <rect x="${PX(0)}" y="${PY(100)}" width="${3.4*60}" height="${3.4*40}" fill="var(--q-tl)" opacity="${op('tl')}"/>
+  <rect x="${PX(60)}" y="${PY(100)}" width="${3.4*40}" height="${3.4*40}" fill="var(--q-tr)" opacity="${op('tr')}"/>
+  <rect x="${PX(0)}" y="${PY(60)}" width="${3.4*60}" height="${3.4*60}" fill="var(--q-bl)" opacity="${op('bl')}"/>
+  <rect x="${PX(60)}" y="${PY(60)}" width="${3.4*40}" height="${3.4*60}" fill="var(--q-br)" opacity="${op('br')}"/>
+  <polygon points="${pts([[0,10],[90,100],[80,100],[0,20]])}" fill="var(--warn)" opacity=".16"/>
+  <polygon points="${pts([[0,20],[80,100],[0,100]])}" fill="url(#hatch)"/>
+  <line x1="${PX(0)}" y1="${PY(20)}" x2="${PX(80)}" y2="${PY(100)}" stroke="var(--danger)" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="${PX(60)}" y1="${PY(0)}" x2="${PX(60)}" y2="${PY(100)}" stroke="var(--ink)" stroke-width="1" opacity=".5"/>
+  <line x1="${PX(0)}" y1="${PY(60)}" x2="${PX(100)}" y2="${PY(60)}" stroke="var(--ink)" stroke-width="1" opacity=".5"/>
+  <rect x="${PX(0)}" y="${PY(100)}" width="340" height="340" fill="none" stroke="var(--line)"/>
+  <g font-size="11" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">
+   <text x="${PX(2)}" y="${PY(97)}">幻觉裸奔区</text>
+   <text x="${PX(98)}" y="${PY(97)}" text-anchor="end">AI 原生领航区</text>
+   <text x="${PX(2)}" y="${PY(3)}">远古化石区</text>
+   <text x="${PX(98)}" y="${PY(3)}" text-anchor="end">稳健蓄势区</text>
+  </g>
+  <text x="${PX(14)}" y="${PY(30)}" font-size="9.5" fill="var(--danger)" transform="rotate(-45 ${PX(14)} ${PY(30)})" font-family="var(--f-body)">地基失稳线</text>
+  ${ticks}
+  <text x="${PX(50)}" y="392" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--f-body)">X 数字化成熟度 →</text>
+  <text x="12" y="${PY(50)}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 12 ${PY(50)})" font-family="var(--f-body)">Y AI 接受与融合度 →</text>
+  ${ref.map(r=>`<circle cx="${PX(r.x)}" cy="${PY(r.y)}" r="4" fill="var(--muted)"/><text x="${PX(r.x)-7}" y="${PY(r.y)+4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--f-body)">${r.n}（示意）</text>`).join('')}
+  <line x1="${PX(c.X)}" y1="${PY(c.Y)}" x2="${PX(c.Xc)}" y2="${PY(c.Yc)}" stroke="var(--ink)" stroke-dasharray="3 3" opacity=".6"/>
+  <circle class="pt" cx="${PX(c.Xc)}" cy="${PY(c.Yc)}" r="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+  <circle class="pt" cx="${PX(c.X)}" cy="${PY(c.Y)}" r="${c.stab.r}" fill="var(--accent)" fill-opacity=".12" stroke="var(--accent)" stroke-dasharray="3 3" stroke-opacity=".7"/>
+  <circle class="pt" cx="${PX(c.X)}" cy="${PY(c.Y)}" r="8" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+}
+
+/* ---------- update ---------- */
+function gapState(g){return g>20?['danger','地基失稳']:g>10?['warn','警戒带']:['ok','匹配']}
+function renderReport(c){
+  const Q=QUADS[c.quad];
+  const gaps=ALL.map(i=>({i,loss:i.w*(1-LV[c.it[i.id].lv])})).filter(x=>x.loss>0).sort((a,b)=>b.loss-a.loss).slice(0,3);
+  const hits=ALLTRAPS.filter(t=>S.traps[t.id]===true);
+  const bar=i=>{const d=c.it[i.id];return `<div class="bar"><span>${i.id.toUpperCase()} ${i.name}</span><div class="track"><div class="fill" style="width:${LV[d.lv]*100}%"></div><div class="cons" style="width:${LV[d.clv]*100}%"></div></div><span class="v">${r1(d.score)}/${i.w}</span></div>`};
+  document.getElementById('report').innerHTML=`
+   <div class="card">
+    <div class="eyebrow">象限判定</div>
+    <h3>${Q.name}　<span class="flag ${Q.tone}">${Q.en}</span></h3>
+    <p>${Q.desc}</p>
+    <ol>${Q.rx.map(x=>`<li>${x}</li>`).join('')}</ol>
+   </div>
+   <div class="card"><div class="eyebrow">组织稳定度</div>
+    <h3>${c.stab.n}　<span class="flag ${c.stab.k}">${c.stab.en}</span>　<span class="mono muted" style="font-size:14px">${c.stab.yes}/6</span></h3>
+    <p>${STABTXT[c.stab.k]}</p>
+    ${Z_QS.filter(q=>S.z[q.id]!==true).length?`<ul>${Z_QS.filter(q=>S.z[q.id]!==true).map(q=>`<li><b>${q.t}</b>${S.z[q.id]===undefined?'（未答）':''}：${q.why}</li>`).join('')}</ul>`:''}
+   </div>
+   <div class="card"><h3>优先补的三块短板</h3>
+     ${gaps.length?`<ol>${gaps.map(g=>`<li><b>${g.i.id.toUpperCase()} ${g.i.name}</b>：还差 <span class="mono">${r1(g.loss)}</span> 分。下一档目标：${g.i.a[Math.min(2,Math.floor((c.it[g.i.id].lv+2)/2))]}</li>`).join('')}</ol>`:'<p>十项全部满分。请复核证据，满分通常意味着自评过于乐观。</p>'}
+   </div>
+   <div class="two">
+    <div class="card"><h3>Y 轴明细</h3><div class="bars">${Y_ITEMS.map(bar).join('')}</div></div>
+    <div class="card"><h3>X 轴明细</h3><div class="bars">${X_ITEMS.map(bar).join('')}</div></div>
+   </div>
+   ${c.cons.length?`<div class="card"><h3>一致性检查</h3><ul>${c.cons.map(([t,b,s])=>`<li><span class="flag ${t}">${b}</span> ${s}</li>`).join('')}</ul></div>`:''}
+   <div class="card"><h3>反模式整改清单（${hits.length}）</h3>
+    ${hits.length?`<ul>${hits.map(t=>`<li><b>${t.t}</b> <span class="link-chip">→ ${t.link.toUpperCase()}</span><br><span class="muted">${t.fix}</span></li>`).join('')}</ul>`:'<p>未命中任何反模式。如果反模式页还没答完，请先答完再看这里。</p>'}
+   </div>`;
+}
+
+function summaryText(){
+  const c=compute(),Q=QUADS[c.quad],P=resolvePersona(c);
+  const lines=[`【AI 原生双轴诊断】`,`综合分 ${r1(c.T.score)}｜X 数字化 ${r1(c.X)}｜Y AI 化 ${r1(c.Y)}｜Y−X ${r1(c.gap)}`,`象限：${Q.name} ${Q.en}`,`人格：${P.fullTitle}——${P.poster}`];
+  if(P.complications.length) lines.push(`并发症：${P.complications.map(m=>m.name).join('、')}`);
+  if(c.T.pen>0) lines.push('警示：地基失稳');
+  lines.push(`组织稳定度：${c.stab.n}（${c.stab.yes}/6）`);
+  lines.push('','各项得分：');
+  ALL.forEach(i=>lines.push(`  ${i.id.toUpperCase()} ${i.name}：${r1(c.it[i.id].score)}/${i.w}${S.evid[i.id]?'':'（无证据）'}`));
+  const hits=ALLTRAPS.filter(t=>S.traps[t.id]===true);
+  if(hits.length){lines.push('','命中反模式：');hits.forEach(t=>lines.push(`  · ${t.t} → ${t.fix}`))}
+  lines.push('','处方：');Q.rx.forEach((x,k)=>lines.push(`  ${k+1}. ${x}`));
+  return lines.join('\n');
+}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
+
+/* ---------- one question per screen ---------- */
+const SECTIONS=[
+ {name:'Y 轴 · AI 接受与融合度',steps:Y_ITEMS.map(i=>({k:'item',i}))},
+ {name:'X 轴 · 数字化成熟度',steps:X_ITEMS.map(i=>({k:'item',i}))},
+ {name:'组织稳定度',steps:Z_QS.map(q=>({k:'z',q}))},
+];
+const MAIN=SECTIONS.flatMap(sec=>sec.steps.map(st=>({...st,sec})));
+const TRAP_STEPS=ALLTRAPS.map(t=>({k:'trap',t}));
+const answered=st=>st.k==='item'?S.scores[st.i.id]!==undefined:st.k==='z'?S.z[st.q.id]!==undefined:S.traps[st.t.id]!==undefined;
+const trapsAnswered=()=>TRAP_STEPS.filter(answered).length;
+const firstOpen=list=>{const k=list.findIndex(st=>!answered(st));return k<0?list.length:k};
+
+const app=document.getElementById('app'), shell=document.getElementById('shell');
+function go(view){S.view=view;save();render();window.scrollTo({top:0,behavior:'instant'})}
+function next(){
+  const v=S.view;
+  // 主线答完一律经过分岔页：反模式全答完的人（比如回头改答案）也要能再进去改
+  if(v.s==='q') go(v.i<MAIN.length-1?{s:'q',i:v.i+1}:{s:'gate'});
+  else if(v.s==='t') go(v.i<TRAP_STEPS.length-1?{s:'t',i:v.i+1}:{s:'result'});
+}
+function back(){
+  const v=S.view;
+  if(v.s==='q') go(v.i>0?{s:'q',i:v.i-1}:{s:'intro'});
+  else if(v.s==='gate') go({s:'q',i:MAIN.length-1});
+  else if(v.s==='t') go(v.i>0?{s:'t',i:v.i-1}:{s:'gate'});
+}
+
+function progressHTML(v){
+  const cell=(st,cur)=>`<span class="cell${answered(st)?' done':''}${cur?' cur':''}"></span>`;
+  let k=0;
+  const groups=SECTIONS.map(sec=>`<span class="grp" style="--n:${sec.steps.length}">${sec.steps.map(()=>{const st=MAIN[k];const cur=v.s==='q'&&v.i===k;k++;return cell(st,cur)}).join('')}</span>`).join('<span class="gap"></span>');
+  const traps=`<span class="grp optional" style="--n:${TRAP_STEPS.length}">${TRAP_STEPS.map((st,j)=>cell(st,v.s==='t'&&v.i===j)).join('')}</span>`;
+  const label=v.s==='q'?`<span><b>${MAIN[v.i].sec.name}</b></span><span class="mono">${v.i+1} / ${MAIN.length}</span>`
+    :v.s==='t'?`<span><b>反模式自查</b>（选做，可随时结束）</span><span class="mono">${v.i+1} / ${TRAP_STEPS.length}</span>`
+    :`<span><b>主线已完成</b></span><span class="mono">${MAIN.length} / ${MAIN.length}</span>`;
+  return `<div class="prog-meta">${label}</div><div class="cells" aria-hidden="true">${groups}<span class="gap"></span>${traps}</div>`;
+}
+
+function itemHTML(i){
+  const cur=S.scores[i.id];
+  const opts=LV.map((p,k)=>{
+    const desc=k%2===0?`<span class="desc">${i.a[k/2]}</span>`:`<span class="desc between">介于「${LVNAME[k-1]}」与「${LVNAME[k+1]}」之间</span>`;
+    return `<button class="opt${cur===k?' on':''}" type="button" data-score="${k}"><span class="lvl"><b>${LVNAME[k]}</b><i>${p*100}%</i></span>${desc}<kbd>${k+1}</kbd></button>`;
+  }).join('');
+  return `<div class="eyebrow">${i.id.toUpperCase()} · ${i.en}</div>
+   <h2>${i.name}</h2>
+   <p class="lede">${i.focus}</p>
+   <label class="evid"><input type="checkbox" data-evid="${i.id}"${S.evid[i.id]?' checked':''}>能拿出证据（制度、后台截图、数据）<small>拿不出就取消勾选</small></label>
+   <div class="opts" role="group" aria-label="${i.name}">${opts}</div>`;
+}
+function ynHTML(attr,id,val,yes='是',no='否'){
+  return `<div class="yn2" role="group"><button class="opt${val===true?' on':''}" type="button" data-${attr}="${id}" data-v="1">${yes}</button><button class="opt${val===false?' on':''}" type="button" data-${attr}="${id}" data-v="0">${no}</button></div>`;
+}
+// 「不知道」按「否」计（先当问题不存在），另记一笔只为回看时能显示选中状态。
+function trapHTML(t){
+  const unk=S.tunk[t.id]===true;
+  return `<div class="eyebrow">反模式 · ${t.en}</div><h2>${t.t}</h2><p class="lede">${t.q}</p>
+   ${ynHTML('trap',t.id,unk?undefined:S.traps[t.id])}
+   <button class="unknown${unk?' on':''}" type="button" data-trap="${t.id}" data-v="?">不知道这是什么（先当它不存在）</button>
+   <div class="why"><div><b>为什么危险</b>${t.why}</div><div><b>怎么改</b>${t.fix}</div></div>`;
+}
+function stepHTML(st,v){
+  const body=st.k==='item'?itemHTML(st.i)
+   :st.k==='z'?`<div class="eyebrow">组织事实题 · ${st.q.en}</div><h2>${st.q.t}</h2><p class="lede">${st.q.q}</p>${ynHTML('z',st.q.id,S.z[st.q.id])}<p class="aside">${st.q.why}</p>`
+   :trapHTML(st.t);
+  const fwd=answered(st)?`<button class="btn" type="button" data-nav="next">下一题 →</button>`:'';
+  const quit=v.s==='t'?`<button class="btn ghost" type="button" data-nav="finish">到此为止，看结果 →</button>`:'';
+  return `<section class="q">${body}<div class="nav"><button class="btn ghost" type="button" data-nav="back">← 上一题</button><span>${quit} ${fwd}</span></div></section>`;
+}
+
+function introHTML(){
+  const started=MAIN.some(answered);
+  const resume=started?`<button class="btn primary" type="button" data-nav="resume">继续上次的诊断</button><button class="btn" type="button" data-nav="restart">从头开始</button>`
+    :`<button class="btn primary" type="button" data-nav="start">开始诊断</button>`;
+  return `<section class="intro">
+    <div class="orn" aria-hidden="true">❧</div>
+    <h1 tabindex="-1">AI 原生双轴诊断</h1>
+    <p class="sub">量化组织的AI原生程度</p>
+    <p class="hook">16 种企业 AI 人格，你家是哪一种？</p>
+    <p class="meta">主线 ${MAIN.length} 题，约 5 分钟 · 另有 ${TRAP_STEPS.length} 道反模式自查，选做</p>
+    <div class="row">${resume}</div>
+  </section>`;
+}
+function gateHTML(){
+  const n=trapsAnswered();
+  if(n===TRAP_STEPS.length) return `<section class="gate">
+    <div class="eyebrow">主线 ${MAIN.length} 题已完成</div>
+    <h2 tabindex="-1">你的企业人格已经更新。</h2>
+    <p>${TRAP_STEPS.length} 道反模式自查之前已经答完。</p>
+    <div class="row">
+      <button class="btn primary" type="button" data-nav="finish">查看结果 →</button>
+      <button class="btn" type="button" data-nav="traps">修改反模式答案</button>
+      <button class="btn ghost" type="button" data-nav="back">← 回到上一题</button>
+    </div>
+  </section>`;
+  return `<section class="gate">
+    <div class="eyebrow">主线 ${MAIN.length} 题已完成</div>
+    <h2 tabindex="-1">你的企业人格已经成形。</h2>
+    <p>还有 ${TRAP_STEPS.length} 道反模式自查${n?`（已答 ${n} 道）`:''}。答完可能检出潜伏的副人格，主人格也可能因此改写。</p>
+    <div class="row">
+      <button class="btn primary" type="button" data-nav="traps">继续回答反模式，解锁潜在的副人格</button>
+      <button class="btn ghost" type="button" data-nav="finish">现在就结束 →</button>
+      <button class="btn ghost" type="button" data-nav="back">← 回到上一题</button>
+    </div>
+  </section>`;
+}
+
+function alertsHTML(c){
+  const [gs]=gapState(c.gap), al=[];
+  if(c.T.pen>0) al.push(['danger','地基失稳','AI 激进度明显超出数字化底座的承载力，综合分已打折。']);
+  else if(gs==='warn') al.push(['warn','进入警戒带','AI 化程度开始超出数字化底座，差距继续拉大将触发折价。']);
+  else al.push(['ok','两轴匹配','AI 化程度没有超出数字化底座的承载力。']);
+  if(r1(c.T.score-c.Tc.score)>=8) al.push(['warn','自评可能偏乐观','部分高分项缺少证据或命中了反模式，建议逐项复核。']);
+  al.push([c.stab.k,`稳定度：${c.stab.n}`,`组织事实题满足 ${c.stab.yes}/6。光晕越大，分数越容易随老板的想法摇摆。`]);
+  c.cons.forEach(x=>al.push(x));
+  return al.slice(0,5).map(([t,b,s])=>`<div class="alert ${t}"><b>${b}</b>　${s}</div>`).join('');
+}
+function personaHTML(P,Q,shared=false){
+  const [ico,...rest]=P.mascot.split(' ');
+  const comps=P.complications.length?`<div class="comps"><div class="eyebrow">检出反模式并发副人格 · Complications</div>${P.complications.map(m=>`<div class="comp"><b>${m.mascot.split(' ')[0]} ${m.name}</b>（${m.sub}）—— ${m.poster}</div>`).join('')}</div>`:'';
+  const n=trapsAnswered();
+  const unlock=!shared&&n<TRAP_STEPS.length?`<div class="unlock"><span>反模式自查还剩 ${TRAP_STEPS.length-n} 道没答，可能还藏着副人格。</span><button class="btn primary" type="button" data-nav="traps">继续解锁</button></div>`:'';
+  return `<article class="hero">
+    <div class="eyebrow">企业 AI 人格画像 · ${Q.name}</div>
+    <h1 tabindex="-1">${P.dreamer?'<span class="dream">👑 眼高手低的梦想家</span>':''}${P.name}</h1>
+    <span class="flag ${Q.tone}">${P.sub}</span>
+    <p class="pull">${P.poster}</p>
+    <dl>
+      <dt>判词</dt><dd>${P.verdict}</dd>
+      <dt>吉祥物图腾</dt><dd><span class="mascot-ico" style="font-size:28px;vertical-align:-4px">${ico}</span> ${rest.join(' ')}</dd>
+      <dt>典型企业病</dt><dd class="muted">${P.disease}</dd>
+    </dl>
+    ${P.dreamer?`<div class="alert warn" style="margin-top:14px"><b>👑 眼高手低的梦想家</b>　多项高分自评拿不出证据——PPT 里已经全员 Agent，后台还在手工 Excel。</div>`:''}
+    ${comps}${unlock}
+  </article>`;
+}
+function resultHTML(){
+  const c=compute(),Q=QUADS[c.quad],P=resolvePersona(c),[gs]=gapState(c.gap);
+  return `${personaHTML(P,Q)}
+  <div class="result-grid">
+    <div class="panel">
+      <div class="eyebrow">AI-Native 综合分</div>
+      <div class="score-row">
+        <div class="big">${r1(c.T.score)}<small>/100</small></div>
+        <div class="kv"><div><span>X 轴</span><b>${r1(c.X)}</b></div><div><span>Y 轴</span><b>${r1(c.Y)}</b></div><div><span>Y − X</span><b style="color:var(--${gs==='ok'?'ink':gs})">${(c.gap>0?'+':'')+r1(c.gap)}</b></div></div>
+      </div>
+      <div class="quad-name">${Q.name} <span class="flag ${Q.tone}">${Q.en}</span></div>
+      <svg class="matrix" viewBox="0 0 400 400" role="img" aria-label="四象限诊断矩阵">${matrixSVG(c)}</svg>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>自评</span>
+        <span><i style="background:transparent;border:2px solid var(--ink)"></i>证据复核后</span>
+        <span><i style="background:var(--muted)"></i>参照点（示意）</span>
+        <span><i style="background:var(--accent-soft);border:1px dashed var(--accent)"></i>光晕 = 稳定度（越大越易碎）</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="eyebrow" style="margin-bottom:10px">诊断要点</div>
+      <div class="alerts">${alertsHTML(c)}</div>
+      <div class="actions" id="actions">
+        <button class="btn primary" type="button" data-nav="poster">生成分享海报</button>
+        <button class="btn" type="button" data-nav="copy">复制诊断摘要</button>
+        <button class="btn" type="button" data-nav="edit">修改答案</button>
+        <button class="btn ghost" type="button" data-nav="restart">重新开始</button>
+      </div>
+    </div>
+  </div>
+  <details class="full"><summary>完整诊断报告</summary><div class="report" id="report"></div></details>`;
+}
+
+function sharedHTML(sh){
+  const P={...PERSONAS[sh.p],complications:sh.c.map(id=>PERSONAS[id]),dreamer:sh.d};
+  return `<div class="eyebrow" style="margin-top:22px;text-align:center">有人测出了 TA 家的企业 AI 人格</div>
+   ${personaHTML(P,QUADS[P.quad],true)}
+   <div class="panel" style="margin-top:18px"><div class="quad-name" style="margin-top:0">${QUADS[P.quad].name} <span class="flag ${QUADS[P.quad].tone}">${QUADS[P.quad].en}</span></div>
+    <svg class="matrix" viewBox="0 0 400 400" role="img" aria-label="四象限诊断矩阵">${matrixSVG({X:sh.x,Y:sh.y,Xc:sh.x,Yc:sh.y,quad:P.quad,stab:{r:0}})}</svg></div>
+   <div class="intro" style="padding:30px 0 0"><p class="hook" style="margin-top:0">你家又是哪一种？</p><div class="row"><button class="btn primary" type="button" data-nav="try">你也来测 →</button></div></div>`;
+}
+
+function render(){
+  const v=S.view;
+  const prog=document.getElementById('progress');
+  if(SHARED){shell.classList.remove('wide');prog.hidden=true;app.innerHTML=sharedHTML(SHARED);return}
+  shell.classList.toggle('wide',v.s==='result');
+  prog.hidden=!(v.s==='q'||v.s==='t'||v.s==='gate');
+  if(!prog.hidden) prog.innerHTML=progressHTML(v);
+  app.innerHTML=v.s==='q'?stepHTML(MAIN[v.i],v):v.s==='t'?stepHTML(TRAP_STEPS[v.i],v):v.s==='gate'?gateHTML():v.s==='result'?resultHTML():introHTML();
+  if(v.s==='result') renderReport(compute());
+  const h=app.querySelector('h1,h2'); if(h){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}
+}
+
+function copySummary(){
+  const txt=summaryText();
+  const fb=()=>{let ta=document.getElementById('copyFallback');if(!ta){ta=document.createElement('textarea');ta.id='copyFallback';document.getElementById('actions').after(ta)}ta.value=txt;ta.focus();ta.select();toast('已选中摘要文本，请手动复制')};
+  try{navigator.clipboard.writeText(txt).then(()=>toast('已复制诊断摘要'),fb)}catch(e){fb()}
+}
+let advancing=null;
+function answer(btn,set){
+  set();save();
+  // 只切换被点按钮的高亮再翻页：整页重绘会让屏幕闪一下
+  btn.closest('.q').querySelectorAll('[data-score],[data-z],[data-trap]').forEach(o=>o.classList.toggle('on',o===btn));
+  clearTimeout(advancing); advancing=setTimeout(next,220);
+}
+app.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const v=S.view, st=v.s==='q'?MAIN[v.i]:v.s==='t'?TRAP_STEPS[v.i]:null;
+  if(b.dataset.score!==undefined&&st) return answer(b,()=>{S.scores[st.i.id]=+b.dataset.score});
+  if(b.dataset.z) return answer(b,()=>{S.z[b.dataset.z]=b.dataset.v==='1'});
+  if(b.dataset.trap) return answer(b,()=>{const id=b.dataset.trap;S.traps[id]=b.dataset.v==='1';S.tunk[id]=b.dataset.v==='?'});
+  switch(b.dataset.nav){
+    case 'start': return go({s:'q',i:0});
+    case 'resume':{const k=firstOpen(MAIN);return go(k<MAIN.length?{s:'q',i:k}:{s:'result'})}
+    case 'restart': if(!confirm('清空全部答案，从头开始？')) return; S=EMPTY(); return go({s:'q',i:0});
+    case 'edit': return go({s:'q',i:0});
+    case 'traps':{const k=firstOpen(TRAP_STEPS);return go({s:'t',i:k<TRAP_STEPS.length?k:0})}
+    case 'finish': return go({s:'result'});
+    case 'next': return next();
+    case 'back': return back();
+    case 'copy': return copySummary();
+    case 'poster': return openShare();
+    case 'try': SHARED=null; history.replaceState(null,'',location.pathname); return go({s:'intro'});
+  }
+});
+app.addEventListener('change',e=>{const id=e.target.dataset.evid;if(id){S.evid[id]=e.target.checked;save()}});
+document.addEventListener('keydown',e=>{
+  if(SHARED||e.altKey||e.ctrlKey||e.metaKey||e.target.closest('input,textarea,summary,dialog')) return;
+  const v=S.view, st=v.s==='q'?MAIN[v.i]:v.s==='t'?TRAP_STEPS[v.i]:null;
+  if(!st) return;
+  if(st.k==='item'&&/^[1-5]$/.test(e.key)) app.querySelector(`[data-score="${+e.key-1}"]`).click();
+  else if(st.k!=='item'&&/^[yn12]$/i.test(e.key)) app.querySelector(`[data-v="${/^[y1]$/i.test(e.key)?1:0}"]`).click();
+  else if(st.k==='trap'&&/^[3?]$/.test(e.key)) app.querySelector('[data-v="?"]').click();
+  else if(e.key==='ArrowLeft') back();
+  else if(e.key==='ArrowRight'&&answered(st)) next();
+});
+
+/* ---------- share link ---------- */
+// 链接只带人格、坐标、并发症与梦想家标记，不带答题明细：反模式答案不该被转发出去。
+const PERSONA_IDS=Object.keys(PERSONAS);
+const quadOf=(x,y)=>x>=60?(y>=60?'tr':'br'):(y>=60?'tl':'bl');
+// 指向 p/<人格>/ 静态页：社交平台抓预览不跑 JS，只有静态页的 meta 能让每种人格有自己的预览图。
+function shareURL(d){
+  const q=new URLSearchParams({x:d.x,y:d.y});
+  if(d.c.length) q.set('c',d.c.join('.'));
+  if(d.d) q.set('d','1');
+  return new URL(`p/${d.p}/?${q}`,new URL('./',location.href)).href;
+}
+function readShare(){
+  const q=new URLSearchParams(location.search), p=q.get('p');
+  if(!p||!PERSONAS[p]||!PERSONAS[p].quad) return null;
+  const n=k=>Math.max(0,Math.min(100,Math.round(+q.get(k)||0)));
+  return {p,x:n('x'),y:n('y'),c:(q.get('c')||'').split('.').filter(id=>PERSONAS[id]&&!PERSONAS[id].quad),d:q.get('d')==='1'};
+}
+let SHARED=readShare();
+
+/* ---------- poster: 1080×1440 (3:4), drawn on canvas ---------- */
+// 与结果页同一套视觉：羊皮纸底 + 纸色卡片、胡桃木墨色、黄铜强调、炭火色引言竖线。
+// 海报固定用浅色版，不随看图人的深色模式变化。
+const PF='"Fraunces","Noto Serif SC","Songti SC","STSong",serif';
+const EMOJI='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+const PC={bg:'#F3EADB',surface:'#FBF6EC',ink:'#2E2219',muted:'#7A6550',line:'#DCCAAE',accent:'#8B5A12',ember:'#C2582B',
+  warn:'#946006',danger:'#9E2B25',dangerSoft:'#F3DAD3',
+  tone:{ok:['#E2E7D0','#4F6B3A'],info:['#F1E1BF','#8B5A12'],warn:['#F4E4C1','#946006'],danger:['#F3DAD3','#9E2B25']},
+  quad:{tr:'#E1E5CB',br:'#EAE0C8',tl:'#F2D8CB',bl:'#E8E1D5'}};
+// 中文逐字断行；英文数字串整体不拆；收尾标点不放到行首。
+const tokens=s=>s.match(/[A-Za-z0-9][A-Za-z0-9.+%#-]*|\s+|./gu)||[];
+const NO_START=/^[，。、；：！？」』）》%…—]/;
+function wrapLines(g,text,maxW){
+  const lines=[];let line='';
+  for(const t of tokens(text)){
+    if(line.trim()&&g.measureText(line+t).width>maxW&&!NO_START.test(t)){lines.push(line.trimEnd());line=t.trimStart()}
+    else line+=t;
+  }
+  if(line.trim()) lines.push(line.trimEnd());
+  return lines;
+}
+function fitLines(g,text,font,maxW,maxLines){
+  g.font=font; let lines=wrapLines(g,text,maxW);
+  if(lines.length>maxLines){lines=lines.slice(0,maxLines);lines[maxLines-1]=lines[maxLines-1].replace(/.$/u,'…')}
+  return lines;
+}
+function fitSize(g,text,weight,max,min,maxW){
+  for(let s=max;s>min;s-=2){g.font=`${weight} ${s}px ${PF}`;if(g.measureText(text).width<=maxW) return s}
+  return min;
+}
+function rrect(g,x,y,w,h,r){g.beginPath();if(g.roundRect) g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)}
+function text(g,s,x,y,font,color,align='left'){g.font=font;g.fillStyle=color;g.textAlign=align;g.fillText(s,x,y)}
+
+function drawMiniMap(g,x0,y0,size,X,Y,quad){
+  const px=v=>x0+v/100*size, py=v=>y0+size-v/100*size;
+  [['tl',0,60,60,100],['tr',60,60,100,100],['bl',0,0,60,60],['br',60,0,100,60]].forEach(([k,a,b,c,d])=>{
+    g.globalAlpha=k===quad?1:.45; g.fillStyle=PC.quad[k]; g.fillRect(px(a),py(d),px(c)-px(a),py(b)-py(d));
+  });
+  g.globalAlpha=.3; g.strokeStyle=PC.ink; g.lineWidth=1.5;
+  g.beginPath(); g.moveTo(px(60),py(0)); g.lineTo(px(60),py(100)); g.moveTo(px(0),py(60)); g.lineTo(px(100),py(60)); g.stroke();
+  g.globalAlpha=1; g.strokeStyle=PC.line; g.lineWidth=2; g.strokeRect(x0,y0,size,size);
+  g.fillStyle=PC.accent; g.beginPath(); g.arc(px(X),py(Y),10,0,Math.PI*2); g.fill();
+  g.strokeStyle=PC.surface; g.lineWidth=3; g.stroke();
+}
+function drawQR(g,data,x,y,size){
+  g.fillStyle='#FFFFFF'; rrect(g,x,y,size,size,12); g.fill(); g.strokeStyle=PC.line; g.lineWidth=2; g.stroke();
+  if(typeof qrcode!=='function') return;
+  const qr=qrcode(0,'M'); qr.addData(data); qr.make();
+  const n=qr.getModuleCount(), pad=size*.09, cell=(size-pad*2)/n;
+  g.fillStyle=PC.ink;
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(qr.isDark(r,c)) g.fillRect(Math.floor(x+pad+c*cell),Math.floor(y+pad+r*cell),Math.ceil(cell),Math.ceil(cell));
+}
+
+async function renderPoster(o){
+  const W=1080,H=1440,cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const g=cv.getContext('2d');
+  const strings=[o.P.name,o.P.sub,o.P.poster,o.P.verdict,o.mascot,o.Q.name,o.top?`${o.top.id.toUpperCase()} ${o.top.name}`:'',...o.comps.map(m=>m.name),
+    '企业 AI 人格画像 · 吉祥物图腾 No. / 16 判词 检出反模式并发副人格 所在象限 最强项 还在寻找中 眼高手低的梦想家 扫码 · 你也来测 rami0291.com/ainativebench 本工具不构成审计结论，结果仅供娱乐 X Y 0123456789'].join('');
+  await Promise.all(['400','600','800'].map(w=>document.fonts.load(`${w} 40px ${PF}`,strings).catch(()=>{})));
+  g.textBaseline='alphabetic';
+
+  // 羊皮纸底 + 纸色卡片
+  g.fillStyle=PC.bg; g.fillRect(0,0,W,H);
+  rrect(g,40,40,W-80,1332,28); g.fillStyle=PC.surface; g.fill(); g.strokeStyle=PC.line; g.lineWidth=2; g.stroke();
+  const x0=104, maxW=W-2*x0;
+
+  // 页眉：小图腾 + 象限 + 吉祥物名，右上角图鉴编号
+  g.font=`88px ${EMOJI}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(o.ico,x0+46,170); g.textBaseline='alphabetic';
+  text(g,`企业 AI 人格画像 · ${o.Q.name}`,x0+120,154,`400 25px ${PF}`,PC.muted);
+  text(g,`No.${String(o.no).padStart(2,'0')} / 16`,W-x0,154,`400 25px ${PF}`,PC.muted,'right');
+  const mascotL=fitLines(g,`吉祥物图腾 · ${o.mascot}`,`600 28px ${PF}`,maxW-120,1);
+  text(g,mascotL[0],x0+120,200,`600 28px ${PF}`,PC.ink);
+
+  // 正文块：先量高度，放不下就依次舍弃判词；最后在 262–1060 之间垂直居中
+  const nameSize=fitSize(g,o.P.name,800,100,72,maxW);
+  const nameL=fitLines(g,o.P.name,`800 ${nameSize}px ${PF}`,maxW,2);
+  const quoteL=fitLines(g,o.P.poster,`600 52px ${PF}`,maxW-34,2);
+  const verdL=fitLines(g,o.P.verdict,`400 31px ${PF}`,maxW,2);
+  const [toneBg,toneFg]=PC.tone[o.Q.tone];
+  g.font=`600 27px ${PF}`;
+  const chips=[];{let cx=0,row=0;for(const m of o.comps){const label=`${m.mascot.split(' ')[0]} ${m.name}`,w=g.measureText(label).width+40;if(cx&&cx+w>maxW){row++;cx=0}chips.push({label,x:cx,row,w});cx+=w+12}}
+  const chipRows=chips.length?chips[chips.length-1].row+1:0;
+  const block=(h,draw)=>({h,draw});
+  const parts={
+    dreamer:o.dreamer?[block(54,y=>text(g,'👑 眼高手低的梦想家',x0,y+36,`600 32px ${PF}`,PC.warn))]:[],
+    name:[block(nameL.length*nameSize*1.14,y=>nameL.forEach((l,k)=>text(g,l,x0,y+nameSize*.88+k*nameSize*1.14,`800 ${nameSize}px ${PF}`,PC.ink))),block(20)],
+    pill:[block(54,y=>{g.font=`600 27px ${PF}`;const w=g.measureText(o.P.sub).width+44;rrect(g,x0,y,w,54,27);g.fillStyle=toneBg;g.fill();text(g,o.P.sub,x0+22,y+36,`600 27px ${PF}`,toneFg)}),block(44)],
+    quote:[block(quoteL.length*74,y=>{g.fillStyle=PC.ember;g.fillRect(x0,y+6,5,quoteL.length*74-12);quoteL.forEach((l,k)=>text(g,l,x0+34,y+54+k*74,`600 52px ${PF}`,PC.ink))}),block(40)],
+    verdict:[block(34+verdL.length*46,y=>{text(g,'判词',x0,y+22,`400 23px ${PF}`,PC.muted);verdL.forEach((l,k)=>text(g,l,x0,y+66+k*46,`400 31px ${PF}`,PC.ink))}),block(38)],
+    comps:chips.length?[block(40+chipRows*66,y=>{
+      text(g,'检出反模式并发副人格',x0,y+22,`400 23px ${PF}`,PC.muted);
+      for(const ch of chips){const cy=y+40+ch.row*66;rrect(g,x0+ch.x,cy,ch.w,54,12);g.fillStyle=PC.dangerSoft;g.fill();text(g,ch.label,x0+ch.x+20,cy+37,`600 27px ${PF}`,PC.danger)}
+    })]:[],
+  };
+  const order=['dreamer','name','pill','quote','verdict','comps'];
+  const height=keys=>keys.flatMap(k=>parts[k]).reduce((a,b)=>a+b.h,0);
+  let keys=order; const top=262, bottom=1060;
+  if(height(keys)>bottom-top) keys=keys.filter(k=>k!=='verdict');
+  let y=top+Math.max(0,(bottom-top-height(keys))/2);
+  for(const b of keys.flatMap(k=>parts[k])){b.draw&&b.draw(y);y+=b.h}
+
+  // 底栏：象限小图 · 象限与最强项 · 二维码
+  g.setLineDash([8,8]); g.strokeStyle=PC.line; g.lineWidth=2; g.beginPath(); g.moveTo(x0,1090); g.lineTo(W-x0,1090); g.stroke(); g.setLineDash([]);
+  const by=1122, qs=180, qx=W-x0-qs, mx=x0+180+32;
+  drawMiniMap(g,x0,by,180,o.X,o.Y,o.quad);
+  text(g,'所在象限',mx,by+26,`400 23px ${PF}`,PC.muted);
+  text(g,o.Q.name,mx,by+70,`800 36px ${PF}`,PC.ink);
+  text(g,`X ${o.X} · Y ${o.Y}`,mx+g.measureText(o.Q.name).width+16,by+68,`400 24px ${PF}`,PC.muted);
+  text(g,'最强项',mx,by+118,`400 23px ${PF}`,PC.muted);
+  const topL=fitLines(g,o.top?`${o.top.id.toUpperCase()} ${o.top.name}`:'还在寻找中',`600 29px ${PF}`,qx-24-mx,1);
+  text(g,topL[0],mx,by+158,`600 29px ${PF}`,PC.ink);
+  drawQR(g,o.url,qx,by,qs);
+  text(g,'扫码 · 你也来测',qx+qs/2,by+qs+34,`400 22px ${PF}`,PC.muted,'center');
+
+  // 卡片外页脚
+  g.font=`600 23px ${PF}`; const u='rami0291.com/ainativebench', uw=g.measureText(u).width;
+  g.font=`400 22px ${PF}`; const rest='　·　本工具不构成审计结论，结果仅供娱乐', rw=g.measureText(rest).width;
+  const fx=(W-uw-rw)/2;
+  text(g,u,fx,1414,`600 23px ${PF}`,PC.accent); text(g,rest,fx+uw,1414,`400 22px ${PF}`,PC.muted);
+  return cv;
+}
+
+/* ---------- link preview images: 1200×630, one per base persona + one for the tool ---------- */
+const OG_W=1200, OG_H=630;
+async function ogCanvas(strings){
+  const cv=document.createElement('canvas'); cv.width=OG_W; cv.height=OG_H;
+  const g=cv.getContext('2d');
+  await Promise.all(['400','600','800'].map(w=>document.fonts.load(`${w} 40px ${PF}`,strings).catch(()=>{})));
+  g.textBaseline='alphabetic';
+  g.fillStyle=PC.bg; g.fillRect(0,0,OG_W,OG_H);
+  rrect(g,28,28,OG_W-56,OG_H-56,24); g.fillStyle=PC.surface; g.fill(); g.strokeStyle=PC.line; g.lineWidth=2; g.stroke();
+  g.setLineDash([8,8]); g.beginPath(); g.moveTo(800,72); g.lineTo(800,OG_H-72); g.stroke(); g.setLineDash([]);
+  text(g,'rami0291.com/ainativebench',84,OG_H-62,`600 22px ${PF}`,PC.accent);
+  return g;
+}
+async function renderOG(P,Q,no){
+  const maxW=670;
+  const g=await ogCanvas([P.name,P.sub,P.poster,Q.name,'企业 AI 人格画像 · No. / 16 你家是哪一种？ 0123456789'].join(''));
+  const nameSize=fitSize(g,P.name,800,84,58,maxW);
+  const nameL=fitLines(g,P.name,`800 ${nameSize}px ${PF}`,maxW,2);
+  const quoteL=fitLines(g,P.poster,`600 38px ${PF}`,maxW-30,2);
+  const h=34+nameL.length*nameSize*1.14+18+50+34+quoteL.length*54;
+  let y=88+Math.max(0,(470-88-h)/2);
+  text(g,`企业 AI 人格画像 · ${Q.name}`,84,y+22,`400 23px ${PF}`,PC.muted); y+=34;
+  nameL.forEach((l,k)=>text(g,l,84,y+nameSize*.88+k*nameSize*1.14,`800 ${nameSize}px ${PF}`,PC.ink)); y+=nameL.length*nameSize*1.14+18;
+  const [bg,fg]=PC.tone[Q.tone]; g.font=`600 24px ${PF}`; const pw=g.measureText(P.sub).width+40;
+  rrect(g,84,y,pw,50,25); g.fillStyle=bg; g.fill(); text(g,P.sub,104,y+33,`600 24px ${PF}`,fg); y+=50+34;
+  g.fillStyle=PC.ember; g.fillRect(84,y+4,5,quoteL.length*54-8);
+  quoteL.forEach((l,k)=>text(g,l,114,y+40+k*54,`600 38px ${PF}`,PC.ink));
+  g.font=`170px ${EMOJI}`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(P.mascot.split(' ')[0],1000,250); g.textBaseline='alphabetic';
+  text(g,`No.${String(no).padStart(2,'0')} / 16`,1000,412,`400 24px ${PF}`,PC.muted,'center');
+  text(g,'你家是哪一种？',1000,470,`600 32px ${PF}`,PC.ink,'center');
+  return g.canvas;
+}
+async function renderOGDefault(){
+  const g=await ogCanvas('16 种企业 AI 人格 AI 原生双轴诊断 量化组织的AI原生程度 你家是哪一种？');
+  text(g,'16 种企业 AI 人格',84,150,`400 25px ${PF}`,PC.muted);
+  text(g,'AI 原生双轴诊断',84,250,`800 80px ${PF}`,PC.ink);
+  text(g,'量化组织的AI原生程度',84,308,`400 30px ${PF}`,PC.muted);
+  g.fillStyle=PC.ember; g.fillRect(84,368,5,44);
+  text(g,'你家是哪一种？',114,404,`600 38px ${PF}`,PC.ink);
+  const icons=Object.values(PERSONAS).filter(p=>p.quad).map(p=>p.mascot.split(' ')[0]);
+  g.font=`62px ${EMOJI}`; g.textAlign='center'; g.textBaseline='middle';
+  icons.forEach((ico,k)=>g.fillText(ico,880+(k%3)*120,140+Math.floor(k/3)*116));
+  g.textBaseline='alphabetic';
+  return g.canvas;
+}
+// 开发用：本地运行 tools/dev-server.mjs 后打开 /#build-share，重新生成分享页与预览图
+if(location.hash==='#build-share') import('./tools/build-share.js');
+
+function strongest(c){
+  const best=[...ALL].sort((a,b)=>LV[c.it[b.id].lv]-LV[c.it[a.id].lv]||b.w-a.w)[0];
+  return LV[c.it[best.id].lv]>0?best:null;
+}
+const dlg=document.getElementById('shareDlg');
+let posterBlob=null, posterURL='', posterLink='', posterName='';
+async function drawShare(){
+  const c=compute(),P=resolvePersona(c),Q=QUADS[c.quad];
+  const d={p:P.id,x:Math.round(c.X),y:Math.round(c.Y),c:P.complications.map(m=>m.id),d:P.dreamer};
+  posterLink=shareURL(d); posterName=`ai-persona-${P.id}.png`;
+  const cv=await renderPoster({P,Q,X:d.x,Y:d.y,quad:c.quad,no:PERSONA_IDS.indexOf(P.id)+1,ico:P.mascot.split(' ')[0],
+    mascot:P.mascot.split(' ').slice(1).join(' '),top:strongest(c),dreamer:P.dreamer,comps:P.complications,url:posterLink});
+  posterBlob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  if(posterURL) URL.revokeObjectURL(posterURL);
+  posterURL=URL.createObjectURL(posterBlob);
+  document.getElementById('posterImg').src=posterURL;
+  const file=new File([posterBlob],posterName,{type:'image/png'});
+  dlg.querySelector('[data-share="native"]').hidden=!(navigator.canShare&&navigator.canShare({files:[file]}));
+}
+function openShare(){dlg.showModal();drawShare()}
+dlg.addEventListener('click',async e=>{
+  if(e.target===dlg) return dlg.close(); // 点遮罩关闭
+  const act=e.target.closest('button')?.dataset.share;
+  if(act==='close') dlg.close();
+  else if(act==='download'&&posterURL){const a=document.createElement('a');a.href=posterURL;a.download=posterName;a.click()}
+  else if(act==='native'&&posterBlob){try{await navigator.share({files:[new File([posterBlob],posterName,{type:'image/png'})],text:`测测你家是哪种企业 AI 人格 ${posterLink}`})}catch(err){}}
+  else if(act==='link'){try{await navigator.clipboard.writeText(posterLink);toast('已复制分享链接')}catch(err){prompt('复制这个链接：',posterLink)}}
+});
+render();
+</script>
+</body>
+</html>
